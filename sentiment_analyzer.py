@@ -11,7 +11,7 @@ class SentimentManager:
     def __init__(self):
         #!!!
         #ONLY RUN _train() IF YOu WANT TO TWEAK THE TRAINING OF THE MODEL OR ARE MISSING THE MODEL
-        #THIS TAKES A VERY LONG TIME TO RUN
+        #THIS CAN TAKE A VERY LONG TIME TO RUN
         #self._train()
         #!!!
 
@@ -30,20 +30,16 @@ class SentimentManager:
         df = pd.read_csv("./dataset/YoutubeCommentsDataSet.csv")
         df["label"] = df["Sentiment"].map({"negative": 0, "neutral": 1, "positive": 2})
 
-        # Initialize tokenizer and model
         tokenizer = BertTokenizer.from_pretrained("bert-large-uncased")
         model = BertForSequenceClassification.from_pretrained("bert-large-uncased", num_labels=3)
 
-        # Tokenize the text
         def tokenize_function(examples):
             texts = [str(x) for x in examples["Comment"]]
             return tokenizer(texts, padding="max_length", truncation=True, max_length=128)
 
-        # Convert pandas DataFrame → Hugging Face Dataset
+        # Convert pandas DataFrame to Hugging Face Dataset
         dataset = Dataset.from_pandas(df)
         tokenized_dataset = dataset.map(tokenize_function, batched=True)
-
-        # Define training arguments
        
         training_args = TrainingArguments(
             output_dir='./results',          # output directory
@@ -55,8 +51,6 @@ class SentimentManager:
             logging_dir='./logs',            # directory for storing logs
         )
 
-
-        # Create Trainer (PyTorch)
         trainer = Trainer(
             model=model,
             args=training_args,
