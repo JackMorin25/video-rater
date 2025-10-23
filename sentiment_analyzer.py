@@ -1,12 +1,19 @@
 from transformers import pipeline, BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
 import torch
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
 import pandas as pd
+import numpy as np
+from datasets import Dataset
 
 class SentimentManager:
 
     def __init__(self):
-        self._train()
+        #!!!
+        #ONLY RUN _train() IF YOu WANT TO TWEAK THE TRAINING OF THE MODEL OR ARE MISSING THE MODEL
+        #THIS TAKES A VERY LONG TIME TO RUN
+        #self._train()
+        #!!!
 
         self.sentiment_pipeline = pipeline(
             "sentiment-analysis",
@@ -20,14 +27,24 @@ class SentimentManager:
         print(result)
     
     def _train(self):
-        model = BertForSequenceClassification.from_pretrained("bert-large-uncased")
         df = pd.read_csv("./dataset/YoutubeCommentsDataSet.csv")
-        comments = df['Comment']
-        labels = df['Sentiment']
-        train_texts, test_texts, train_labels, test_labels = train_test_split(comments, labels, test_size=0.2, random_state=42)
+        df["label"] = df["Sentiment"].map({"negative": 0, "neutral": 1, "positive": 2})
 
-        
+        # Initialize tokenizer and model
+        tokenizer = BertTokenizer.from_pretrained("bert-large-uncased")
+        model = BertForSequenceClassification.from_pretrained("bert-large-uncased", num_labels=3)
 
+        # Tokenize the text
+        def tokenize_function(examples):
+            texts = [str(x) for x in examples["Comment"]]
+            return tokenizer(texts, padding="max_length", truncation=True, max_length=128)
+
+        # Convert pandas DataFrame → Hugging Face Dataset
+        dataset = Dataset.from_pandas(df)
+        tokenized_dataset = dataset.map(tokenize_function, batched=True)
+
+        # Define training arguments
+       
         training_args = TrainingArguments(
             output_dir='./results',          # output directory
             num_train_epochs=3,              # total # of training epochs
@@ -38,11 +55,12 @@ class SentimentManager:
             logging_dir='./logs',            # directory for storing logs
         )
 
+
+        # Create Trainer (PyTorch)
         trainer = Trainer(
-            model=model,                         # the instantiated 🤗 Transformers model to be trained
-            args=training_args,                  # training arguments, defined above
-            train_dataset=df,         # training dataset
-            eval_dataset=df            # evaluation dataset
+            model=model,
+            args=training_args,
+            train_dataset=tokenized_dataset,
         )
 
         trainer.train()
