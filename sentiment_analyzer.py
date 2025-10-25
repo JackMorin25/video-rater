@@ -22,8 +22,8 @@ class SentimentManager:
             truncation=True
         )
     
-    def test(self):
-        result = self.sentiment_pipeline("I HATE THIS!!!")
+    def test(self, text):
+        result = self.sentiment_pipeline(text)
         print(result)
     
     def _train(self):

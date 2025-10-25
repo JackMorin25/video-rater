@@ -6,5 +6,10 @@ content_manager = ContentManager()
 sentiment_manager = SentimentManager()
 
 #content_manager.getVidIdSearch("Ludwig")
-#content_manager.listComments("jBx4qIGd7BE")
-sentiment_manager.test()
+response = content_manager.listComments("jBx4qIGd7BE")
+
+for item in response['items']:
+    print("msg: " + item['snippet']['topLevelComment']['snippet']['textDisplay'])
+    sentiment_manager.test(item['snippet']['topLevelComment']['snippet']['textDisplay'])
+    
+#sentiment_manager.test()

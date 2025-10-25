@@ -49,7 +49,7 @@ class ContentManager:
 
         response = request.execute()
         
-        for item in response['items']:
-            print(item['snippet']['topLevelComment']['snippet']['textDisplay'])
+        #for item in response['items']:
+            #print(item['snippet']['topLevelComment']['snippet']['textDisplay'])
 
         return response
