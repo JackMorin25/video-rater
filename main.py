@@ -12,8 +12,8 @@ while True:
         time.sleep(0.1)
         continue
 
-    topic= input("please search a topic: ")
-    response = content_manager.getVidIdSearch(topic)
+    topic= input("please enter a videoid: ")
+    response = content_manager.listComments(topic)
     for item in response['items']:
         print("msg: " + item['snippet']['topLevelComment']['snippet']['textDisplay'])
         sentiment_manager.test(item['snippet']['topLevelComment']['snippet']['textDisplay'])
