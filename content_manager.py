@@ -25,7 +25,7 @@ class ContentManager:
 
         response = request.execute()
 
-        print(response)
+        return response
     
     def getVidIdTrending(self):
         request = self.youtube.videos().list(
@@ -49,7 +49,4 @@ class ContentManager:
 
         response = request.execute()
         
-        #for item in response['items']:
-            #print(item['snippet']['topLevelComment']['snippet']['textDisplay'])
-
         return response
